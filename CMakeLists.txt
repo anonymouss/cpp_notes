@@ -22,7 +22,7 @@ set(Boost_NO_BOOST_CMAKE ON)
 #     ADD_DEFINITIONS(-DHAS_BOOST)
 #     include_directories(${Boost_INCLUDE_DIRS})
 # else()
-#     message(WARNING "boost not found, use workaround")
+#     message(WARNING "boost not found")
 # endif()
 
 # FIXME: somthing wrong with my boost installation that cmake can't detect boost.
