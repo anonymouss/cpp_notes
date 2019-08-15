@@ -1,6 +1,8 @@
 # Learning Notes of < Effective Modern C++ >
 
 > **Required**: [`boost`](https://www.boost.org/) C++ library, and [compiler supports at least `C++14`](https://zh.cppreference.com/w/cpp/compiler_support).
+>
+> **Online Book URL**: https://learning.oreilly.com/library/view/effective-modern-c/9781491908419/
 
 ## 01. [Deducing Types](./source/01_deducing_types.cpp)
 
@@ -227,3 +229,71 @@ public:
     5. **默认移动构造**和**默认移动赋值**：移动非静态成员，仅当类没有用户定义的拷贝操作、移动操作、和析构时才会生成。
 
 - ***NOTE***: 特殊成员函数模板不会阻止生成这些特殊的成员函数
+
+## 04. [Smart Pointers](./source/04_smart_pointers.cpp)
+
+### 对于独占所有权的资源，使用 `std::unique_ptr`
+
+- `std::unique_ptr` 很轻巧（和裸指针一样），很快，是一个不可移动的独占资源所有权的智能指针。
+
+- 默认情况下，`std::unique_ptr` 使用 `delete` 释放资源，但是可以自定义 `deleter`（注意 `lambda expression` 和 `function pointer/std::function"` 对 `std::unique_ptr` 对象大小的影响）
+
+- `std::unique_ptr` 可以转换为 `std::shared_ptr`
+
+### 对于共享所有权的资源，使用 `std::shared_ptr`
+
+<!--![std::shared_ptr layout](./image/shared_ptr.png "std::shared_ptr layout")-->
+
+<p align="center">
+<img src="./image/shared_ptr.png" width="480">
+</p>
+
+- `std::shared_ptr` 可以对共享资源所以权的指针进行管理（通过引用计数），它通常比 `std::unique_ptr` 大两被，因为它还有一个指针指向额外的控制块。这个控制块包含了原类型的引用计数，删除器和弱引用计数等（所以它的自定义删除器与 `std::shared_ptr` 类型无关）
+
+- 不要从裸体指针创建 `shared_ptr`，因为你没法知道是否已经有 `shared_ptr` 在管理这个指针，拿不到它的控制块，最后各自维护引用计数，有可能多次释放同一块地址
+
+- `std::enable_shared_from_this`
+
+### 对于可悬垂指针，使用 `std::weak_ptr`
+
+- `weak_ptr` 用起来和 `shared_ptr` 类似，但是它不影响实际对象的引用计数，并且不能被直接解引用（不会控制/影响对象的生命周期，但可以知道对象是否还活着，所以成为悬垂指针是安全的）
+
+- 潜在的使用场景：对象缓存、观察者模式、打破 `std::shared_ptr` 的循环引用
+
+### 优先使用 `std::make_unique` 和 `std::make_shared` 来创建智能指针，而不是通过 `new`
+
+- 与直接使用 `new` 相比，`make` 系函数可以避免重复代码，保证异常安全，并且生成更小更快的代码（`new` 的方法有额外的内存分配）
+
+```C++
+int computePriority();
+void processWidget(std::shared_ptr<Widget> spw, int priority);
+
+// unsafe
+// 1. new Wigett
+// 2. computePriority --> raise exception
+// 3. shared_ptr constructor won't be called. raw pointer becomes dangle
+processWidget(std::shared_ptr<Widget>(new Widget), computePriority());
+
+// safe 1
+processWidget(std::make_shared<Widget>(), computePriority());
+
+// safe 2
+auto spw = std::shared_ptr<Widget>(new Widget);
+processWidget(std::move(spw), computePriority());
+```
+
+- 但是如果要指定自定义删除器的话，`make` 系函数是没法做到的。另外通过 `{}` 构造对 `make` 系函数也是一个坑（与 `std::initializer_list` 混淆，参见 `auto`）
+
+- 对于 `shared_ptr`，还有额外的两种情况不适合使用 `make` 系函数。
+
+    1. 具有自定义内存管理的类（`operator new`，`operator delete`）
+
+    2. 系统对内存敏感的情况，对于大对象，使用 `make` 系函数的话对象的生命周期会延长
+
+### 使用 `pimpl` 时，特殊的成员函数要在实现文件中定义
+
+- `pimpl` 可以减少类的使用者对类定义的依赖，从而节省编译时间
+
+- 在 `pimpl` 使用 `std::unique_ptr` 时，类的特殊成员函数声明要放在头文件中，实现放要在实现文件中的，以避免头文件中包含了 `std::unique_ptr` 析构相关的函数，导致编译错误。（即使类的默认特殊函数功能上可行，我们也必须这么做）
+
+- 上一点，如果用 `std::shared_ptr` 的话就不需要了，完全没烦恼
