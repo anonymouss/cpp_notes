@@ -1,8 +1,6 @@
 # Learning Notes of < Effective Modern C++ >
 
 > **Required**: [`boost`](https://www.boost.org/) C++ library, and [compiler supports at least `C++14`](https://zh.cppreference.com/w/cpp/compiler_support).
->
-> **Online Book URL**: https://learning.oreilly.com/library/view/effective-modern-c/9781491908419/
 
 ## 01. [Deducing Types](./source/01_deducing_types.cpp)
 
@@ -110,6 +108,7 @@ f(expr)
 typedef void(*FP)(int, const std::string &);
 using FP = void(*)(int, const std::string &);
 ```
+
 - 类型别名可以模板化（别名模板 alias templates），`typedef` 不可以
 
 ```C++
@@ -297,3 +296,86 @@ processWidget(std::move(spw), computePriority());
 - 在 `pimpl` 使用 `std::unique_ptr` 时，类的特殊成员函数声明要放在头文件中，实现放要在实现文件中的，以避免头文件中包含了 `std::unique_ptr` 析构相关的函数，导致编译错误。（即使类的默认特殊函数功能上可行，我们也必须这么做）
 
 - 上一点，如果用 `std::shared_ptr` 的话就不需要了，完全没烦恼
+
+## 05. [Rvalue References, Move Semantics, and Perfect Forwarding](./source/05_rvalue_ref_move_and_perfect_forwarding.cpp)
+
+> 参数永远是左值，即使它被声明为右值得形式如 `void f(Widget &&w);`
+
+### 理解 `std::move` 与 `std::forward`
+
+- `std::move` 和 `std::forward` 其实什么都没做！他们只是 `cast` 了一下。
+
+- `std::move` 无条件地将对象转为 `rvalue`，`rvalue` 就**可能**被移动了。**可能**！仅仅是**可能**！会不会被移动还要看具体情况
+
+- `std::forward`，左值转左值，右值转右值。依赖于 `T`
+
+### 所谓的“通用引用”与右值引用的区别（形式上都是 `T&&`）
+
+> **通用引用**其实是一个语义上的抽象概念，本质是引用折叠
+
+- 右值引用表示它只能接受右值
+
+- 所谓的通用引用既可以接受右值，也可以接受左值，也无所谓 `const` 与否（可以接受一切），但是接收过来的值变成什么要看情况（类型推断/引用折叠）。所谓的通用引用主要出现在以下两种情形中
+
+    1. 函数模板 `template <typename T> void f(T &&param);`
+
+    2. `auto` 声明 `auto &&var2 = var1;`
+
+- 通用引用必须是在需要类型推断的 `T&&` 情形，以下情况就不符合
+
+```C++
+// case 1
+template <typename T>
+void f(std::vector<T> &&param); // param 是右值引用，它的声明不是 T&&
+
+// case 2
+template <typename T>
+void f(const T &&param); // param 是右值引用
+
+// case 3
+template <typename T>
+class vector {
+public:
+    ...
+    // 是右值引用，因为这里不存在类型推断，调用该函数时类型早就确定了
+    void push_back(T &&v);
+    // 是通用引用
+    template <typename... Args>
+    void emplace_back(Args&&... v);
+    ...
+};
+```
+
+### 对右值引用使用 `std::move`，对通用引用使用 `std::forward`
+
+- 对右值引用使用 `std::move`，对通用引用使用 `std::forward`
+
+- 如果传入的对象不是右值，也使用 `std::move`，会将它转为右值，有可能被 `move`（不再拥有资源）
+
+- 如果函数返回值类型，并且返回的对象绑定到右值引用或者通用引用，请使用 `return std::move(obj);`（这样可以避免不必要的拷贝）
+
+- 但是！如果函数返回值类型，但返回对象是一个局部对象！请不要使用 `return std::move(obj);`（虽然看上去它会避免拷贝，但实际上，这种情况编译器会做优化`RVO`，编译器的优化更好）
+
+### 避免对通用引用重载
+
+- 通用引用有更加精确的匹配，如果重载版本需要类型提升之类的才能匹配的话，显然匹配到通用引用上去了
+
+- `std::forward` 通用引用的构造函数是很危险的！因为它会比拷贝构造函数有更精确的匹配（他可以生成不带 `const` 的左值引用形参版本），而且它会劫持派生类对基类的默认拷贝/移动构造函数的调用
+
+### 重载通用引用的 workaround
+
+- 放弃重载，定义不同的函数来处理。但是，构造函数就没办法了，你没法给它改名
+
+- 放弃通用引用，使用 `const T &`（它也可以绑定到右值），不过效率不高
+
+- 放弃通用引用，使用值传递，然后内部使用 `std::move`，如果参数是不能移动，拷贝也无法避免
+
+- 添加额外的参数来区分选择哪个重载版本（tag dispatch）
+
+- 对通用引用的模板进行约束（所以需要`concept` from `C++20`，SFINAE/type trait/`std::enable_if` for now）
+
+### 引用折叠
+
+### 假设移动操作不存在、代价高或者无用
+
+### 完美转发失败的情况

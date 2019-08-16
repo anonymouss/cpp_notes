@@ -15,6 +15,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/out/)
 
 set(Boost_NO_BOOST_CMAKE ON)
 
+set(OPTIONS -fno-elide-constructors)
+
 # boost library
 # find_package(Boost)
 # if(Boost_FOUND)
