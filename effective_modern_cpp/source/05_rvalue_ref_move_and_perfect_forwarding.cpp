@@ -33,12 +33,12 @@ struct Int {
     Int(Int &&rhs) {
         printf("move construct %d\n", rhs.value);
         this->value = std::move(rhs.value);
-        rhs.value = -1; // destroy
+        rhs.value = -1;  // destroy
     }
     Int &operator=(Int &&rhs) {
         printf("move assign %d\n", rhs.value);
         this->value = std::move(rhs.value);
-        rhs.value = -1; // destroy
+        rhs.value = -1;  // destroy
         return *this;
     }
     Int &operator+=(const Int &rhs) {
@@ -48,8 +48,7 @@ struct Int {
     Int operator+(const Int &rhs) {
         Int sum;
         sum = this->value + rhs.value;
-        // return sum;
-        return std::move(sum);
+        return sum;
     }
 
     int value;
@@ -92,9 +91,7 @@ void processItem(STR &&name) {
     printf("calling %s with universal reference argument\n", __func__);
 }
 
-void processItem(int index) {
-    printf("calling %s with int argument\n", __func__);
-}
+void processItem(int index) { printf("calling %s with int argument\n", __func__); }
 
 const static std::string kNames[] = {"Name 1", "Name 2", "Name 3"};
 
@@ -104,9 +101,7 @@ struct Person {
         printf("univ reference\n");
     }
     explicit Person(int index) {
-        if (index < 0 || index > 2) {
-            index = 0;
-        }
+        if (index < 0 || index > 2) { index = 0; }
         name = kNames[index];
     }
     Person(const Person &p) {
@@ -121,14 +116,10 @@ struct Person {
     std::string name;
 };
 
+// std::is_base_of_t is from C++17
 struct Animal {
-    template <typename T,
-        typename = typename std::enable_if<
-            !std::is_base_of<Animal,
-                typename std::decay<T>::type
-            >::value
-        >::type
-    >
+    template <typename T, typename = typename std::enable_if_t<
+                              !std::is_base_of<Animal, typename std::decay_t<T> >::value> >
     explicit Animal(T &&n) {
         printf("Animal univ ref\n");
         mName = std::forward<T>(n);
@@ -147,12 +138,8 @@ struct Animal {
 
 struct Cat : public Animal {
     Cat(const char *name) : Animal(name) {}
-    Cat(const Cat &c) : Animal(c) {
-        printf("Cat cpy ctor\n");
-    }
-    Cat(Cat &&c) : Animal(std::move(c)) {
-        printf("Cat mv ctor\n");
-    }
+    Cat(const Cat &c) : Animal(c) { printf("Cat cpy ctor\n"); }
+    Cat(Cat &&c) : Animal(std::move(c)) { printf("Cat mv ctor\n"); }
 };
 
 int main() {
@@ -173,7 +160,7 @@ int main() {
     {
         Int i(100);
         printf("orginal i.value = %d\n", i.value);
-        auto s = stealInt(i); // pass lvalue. but it's moved
+        auto s = stealInt(i);  // pass lvalue. but it's moved
         printf("now     i.value = %d\n", i.value);
         printf("now     s.value = %d\n", s.value);
 
@@ -186,7 +173,7 @@ int main() {
     INFO("don't overloading on universal reference");
     {
         short idx = 0;
-        processItem(idx); // call universal reference version, not int version
+        processItem(idx);  // call universal reference version, not int version
 
         // universal reference version is best match
         Person p("test");
@@ -195,7 +182,7 @@ int main() {
         // is the best match
         // auto cloneOfP(p);
         const Person q("test");
-        auto cloneOfQ(q); // OK, call cpy ctor
+        auto cloneOfQ(q);  // OK, call cpy ctor
     }
 
     INFO("alternatives for univ ref overloading");

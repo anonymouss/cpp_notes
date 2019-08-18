@@ -362,7 +362,7 @@ public:
 
 - `std::forward` 通用引用的构造函数是很危险的！因为它会比拷贝构造函数有更精确的匹配（他可以生成不带 `const` 的左值引用形参版本），而且它会劫持派生类对基类的默认拷贝/移动构造函数的调用
 
-### 重载通用引用的 workaround
+### 重载通用引用的替代方法
 
 - 放弃重载，定义不同的函数来处理。但是，构造函数就没办法了，你没法给它改名
 
@@ -372,7 +372,7 @@ public:
 
 - 添加额外的参数来区分选择哪个重载版本（tag dispatch）
 
-- 对通用引用的模板进行约束（所以需要`concept` from `C++20`，SFINAE/type trait/`std::enable_if` for now）
+- 对通用引用的模板进行约束（所以需要`concept` from `C++20`，`SFINAE`/`type traits`/`std::enable_if` for now）
 
 ### 引用折叠
 
