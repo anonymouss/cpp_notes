@@ -68,7 +68,6 @@ f(expr)
 
     4. `e` 是 `T` 类型的 `prvalue`，推断结果为 `T`。*（`decltype((a + b))` 为 `T` 不是 `T &`，因为 `a + b` 为纯右值）*
 
-
 ## 02. [`auto`](./source/02_auto.cpp)
 
 ### 优先使用 `auto` 而非显式的类型声明
@@ -440,3 +439,61 @@ fwd(expression);    // fwd 做了另一件事，就叫完美转发失败
     4. 传递重载函数名或模板名作为参数（模板不知道从哪个函数来推断类型）
 
     5. 位域（模板参数是非 `const` 引用，[而指向位域的指针和非 `const` 引用是不允许的](https://zh.cppreference.com/w/cpp/language/bit_field)）
+
+## 06. [Lambda Expressions](./source/06_lambda_expressions.cpp)
+
+### 尽量不要使用默认的捕获方式
+
+- 所谓的默认捕获方式就是如 `[=]` 和 `[&]` 的值和引用捕获
+
+- 默认引用有可能发生超出作用域后捕获的对象被释放，导致悬垂
+
+- 默认的值捕获有可能发生悬垂指针（尤其是类中的 `this` 会被默认捕获）
+
+- 比较好的方法是指定捕获对象，使用值拷贝
+
+### 使用初始化捕获将对象移动到闭包内
+
+- `[data = std::move(data)]() { //... }` C++14 (C++11 不支持)
+
+- C++11 workaround
+
+    1. 自定义一个类（超级麻烦）
+
+    2. `std::bind`
+
+        ```C++
+        auto func = std::bind(
+            [](const T &data) { //xxx },
+            std::move(data)
+        );
+        ```
+
+### 对 `auto&&` 使用 `decltype` 来进行完美转发
+
+```C++
+// 闭包类的 `operator()` 是一个模板
+auto f = [](auto x) { return normalize(x); };
+
+// 类似于
+class SomeCompilerGeneratedClassName {
+public:
+    template <typename T>
+    auto operator()(T x) const {
+        return normalize(x);
+    }
+    //...
+};
+```
+
+```C++
+auto f = [auto &&... params] {
+    return func(normalize(std::forward<decltype(params)>(params)...));
+};
+```
+
+### 使用 lambda 表达式，不要再使用 `std::bind`
+
+- `std::bind` 晦涩，`lambda` 精简且在某些情况下效率更高
+
+- 只有在C++11想实现移动捕获时，可能不得不用 `std::bin`
