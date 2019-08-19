@@ -1,6 +1,8 @@
 # Learning Notes of < Effective Modern C++ >
 
 > **Required**: [`boost`](https://www.boost.org/) C++ library, and [compiler supports at least `C++14`](https://zh.cppreference.com/w/cpp/compiler_support).
+>
+> [*items*](42_items.md) 
 
 ## 01. [Deducing Types](./source/01_deducing_types.cpp)
 
@@ -376,6 +378,65 @@ public:
 
 ### 引用折叠
 
-### 假设移动操作不存在、代价高或者无用
+- `& &&` == `&& &` --> `&` (1)
 
-### 完美转发失败的情况
+- otherwise, `&&` (2)
+
+| 形参  |  实参  |实例化形参|comment|
+|:-----:|:-----:|:-------:|:-----:|
+| `T&`  | `A&`  |  `A&`   |  (1)  |
+| `T&`  | `A&&` |  `A&`   |  (1)  |
+| `T&&` | `A&`  |  `A&`   |  (1)  |
+| `T&&` | `A&&` |  `A&&`  |  (2)  |
+
+- 发生引用折叠的情况：1. 模板推断（`T&&`），2. `auto` 推断（`auto&&`），3. `typedef` 或类型别名（`typedef T&& MyType;`），4. `decltype`
+
+### 有的时候并没有移动操作，或者移动反而更低效，或者无法移动
+
+- **没有移动操作**：待移动对象没有提供移动操作，移动就变成了拷贝
+
+- **移动反而低效**：待移动对象支持移动操作，但是移动反而比拷贝低效（`std::string` SSO）
+
+- **移动操作不可用**：某些上下文中，需要移动操作不抛出异常，但移动操作并没有被声明为 `noexcept`
+
+- **源对象是左值**：除个别例外，只有右值才可以移动
+
+### 完美转发会失败的情况
+
+```C++
+void f(ParamType param);
+
+template <typename ...Ts>
+void fwd(Ts ...params) {
+    f(std::forward<Ts>(params)...);
+}
+
+// 传入同样参数
+f(expression);      // 如果 f 做了某件事
+fwd(expression);    // fwd 做了另一件事，就叫完美转发失败
+```
+
+- 失败原因主要有：
+
+    1. 编译器无法推断出类型
+
+    2. 编译器推断出“错误”的类型（没有匹配）
+
+- 失败的情形主要有：
+
+    1. `{}` 初始化
+
+        ```C++
+        void f(const std::vector<int> &v);
+
+        f({1, 2, 3});       // OK, {1, 2, 3} is implicitly converted to std::vector<int>
+        fwd({1, 2, 3});     // error! can't compile => 无法推断类型
+        ```
+
+    2. 使用 `0` 或者 `NULL` 做空指针（无法正确推断类型）
+
+    3. `static const` 或者 `constepxr` 成员变量只声明未定义（无法链接）
+
+    4. 传递重载函数名或模板名作为参数（模板不知道从哪个函数来推断类型）
+
+    5. 位域（模板参数是非 `const` 引用，[而指向位域的指针和非 `const` 引用是不允许的](https://zh.cppreference.com/w/cpp/language/bit_field)）
