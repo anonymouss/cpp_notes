@@ -1,4 +1,5 @@
 /**
+ * Lambda Expressions
  * - item 31. Avoid default capture modes.
  * - item 32. Use init capture to move objects into closures.
  * - item 33. Use `decltype` on `auto&&` parameters to std::forward them.
@@ -8,8 +9,8 @@
 #include "utils.h"
 
 #include <cstdio>
-#include <vector>
 #include <functional>
+#include <vector>
 
 using FilterContainer = std::vector<std::function<bool(int)>>;
 FilterContainer filters;
@@ -20,10 +21,9 @@ public:
     void addFilter() const {
         // if use [] or use [divisor], can't compile
         // [=] here, it actually captured this pointer. divisor is this->divisor
-        filters.emplace_back([=](int value) {
-            return value % divisor == 0;
-        });
+        filters.emplace_back([=](int value) { return value % divisor == 0; });
     }
+
 private:
     int divisor;
 };
@@ -33,7 +33,7 @@ int main() {
     {
         {
             auto divisor = 5;
-            filters.emplace_back([&](int value) {return value % divisor == 0;});
+            filters.emplace_back([&](int value) { return value % divisor == 0; });
             divisor = 0;
         }
 
@@ -69,8 +69,7 @@ int main() {
                     for (const auto &v : data) { printf("%d, ", v); }
                     printf("\n");
                 },
-                std::move(vec)
-            );
+                std::move(vec));
             moveVec();
             printf("after move, vec has size = %zu\n", vec.size());
         }

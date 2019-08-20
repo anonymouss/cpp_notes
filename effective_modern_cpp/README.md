@@ -496,4 +496,44 @@ auto f = [auto &&... params] {
 
 - `std::bind` 晦涩，`lambda` 精简且在某些情况下效率更高
 
-- 只有在C++11想实现移动捕获时，可能不得不用 `std::bin`
+- 只有在C++11想实现移动捕获时，可能不得不用 `std::bind`
+
+## [The Concurrency API](./source/07_the_concurrency_api.cpp)
+
+### 基于任务编程，不要基于线程编程
+
+- 基于线程 `std::thread` API 没有提供从异步执行的函数获取返回值的方法，如果函数抛出异常，程序会终止
+
+- 基于线程的编程需要手动管理线程耗尽、过载、负载均衡等线程调度问题并且移植到新平台需要重新考虑调度问题
+
+- 基于任务 `std::async` 可以获得函数返回值，并且通过指定任务运行策略可以避免上面提到的大部分问题
+
+### 如果必须异步，请指定 `std::launch::async` 策略
+
+- `std::launch::async` : 必定异步执行
+
+- `std::launch::deferred` : 只有调用 `wait` 或者 `get` 才会执行（同步的，阻塞当前线程）
+
+- 默认策略是两者的组合，无法预知是否会并发，调用 `get` 或 `wait` 无法预知是否在其他线程，还可能会影响到 `wait_for`
+
+### 在任何代码执行路径上都不要让 `std::thread` 可以合并
+
+- 在析构时合并线程可能导致性能异常问题
+
+- 在析构时分离线程可能导致未定义行为
+
+- 线程对象应当声明于成员列表的最后
+
+- `std::thread::joinable` 检查线程对象是否可以合并
+
+### 请注意不同线程句柄（handle）的析构行为
+
+### 使用 `future/promise` 进行 one-shot 通信
+
+### 在并发中使用 `std::atomic`，对特殊的存储使用 `std::volatile`
+
+## [Tweaks](./source/08_tweaks.cpp)
+
+### 对可拷贝且拷贝比移动高效的参数总是使用拷贝并且按值传递
+
+### 使用 emplacement 取代 insertion
