@@ -23,3 +23,32 @@ int main() {
         std::cout << std::endl;  // blank line
     }
 }
+
+/**
+ * outputs
+ * Let's see the ducks...
+ * []
+ * !!! No fly behavior registered
+ * []
+ * !!! No quack behavior registered
+ *
+ * [mallard duck]
+ * I am flying with my wings...
+ * [mallard duck]
+ * Quack! Quack! Quack!
+ *
+ * [decoy duck]
+ * << Sorry, I can't fly... >>
+ * [decoy duck]
+ * << Sorry, I am dumb... >>
+ *
+ * [red head duck]
+ * << Sorry, I can't fly... >>
+ * [red head duck]
+ * Quack! Quack! Quack!
+ *
+ * [rubber duck]
+ * << Sorry, I can't fly... >>
+ * [rubber duck]
+ * Squeak! Squeak! Squeak!
+ * */

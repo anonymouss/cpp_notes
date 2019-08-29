@@ -20,3 +20,4 @@ file(MAKE_DIRECTORY out)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/out/)
 
 add_subdirectory(01_Strategy)
+add_subdirectory(02_Observer)
