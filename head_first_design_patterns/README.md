@@ -31,3 +31,9 @@
 ![decorator](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/Decorator_723-422.gif)
 
 **装饰者模式**：动态地将责任附加到对象上。想要扩展对象，装饰者提供有别于继承的另一种选择。
+
+## [工厂模式](./04_Factory/)
+
+![factory method](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/FactoryMethod_848-296.gif)
+
+![abstract factory](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/AbstractFactory_741-283.gif)

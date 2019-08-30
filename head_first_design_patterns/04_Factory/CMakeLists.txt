@@ -1,0 +1,3 @@
+add_subdirectory(04_factory_simple)
+add_subdirectory(04_factory_method)
+add_subdirectory(04_factory_abstract)
