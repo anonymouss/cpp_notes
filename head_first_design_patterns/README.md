@@ -25,3 +25,9 @@
 ![observer](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/Observer_833-283.gif)
 
 **观察者模式**：在对象之间定义一对多的依赖，这样一来当一个对象改版状态，依赖它的对象全都会收到通知并自动更新
+
+## [装饰者模式](./03_Decorator/)
+
+![decorator](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/Decorator_723-422.gif)
+
+**装饰者模式**：动态地将责任附加到对象上。想要扩展对象，装饰者提供有别于继承的另一种选择。
