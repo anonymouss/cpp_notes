@@ -12,6 +12,8 @@
 
 - 开闭原则：对扩展开放，对修改关闭
 
+- 依赖倒置：要依赖抽象，不用依赖具体类
+
 ## [策略模式](./01_Strategy/)
 
 ![strategy](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/Stategy_801-243.gif)
@@ -34,6 +36,16 @@
 
 ## [工厂模式](./04_Factory/)
 
+### 工厂方法模式
+
 ![factory method](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/FactoryMethod_848-296.gif)
 
+**工厂方法模式**：定义了一个创建对象的接口，但由其子类决定要实例化的对象类是哪一个。工厂方法让类把实例化推迟到了子类
+
 ![abstract factory](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/AbstractFactory_741-283.gif)
+
+**抽象工厂模式**：提供一个接口，用于创建相关或依赖对象的家族，而不需要明确指定具体类
+
+简单工厂（静态工厂方法）：一个工厂类对应多种对象（工厂责任过重）
+
+工厂方法：多个子工厂类各自对应多种对象（是简单工厂的扩展）
