@@ -51,3 +51,9 @@
 工厂方法：多个子工厂类各自对应多种对象（是简单工厂的扩展）
 
 抽象工厂：各个工厂对应产品对象族（更加抽象），通过工厂组合实例化具体的产品
+
+### [单例模式](./05_Singleton/)
+
+![singleton](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/Singleton_459-182.gif)
+
+**单例模式**：确保一个类只有一个实例，并提供一个全局的访问点
