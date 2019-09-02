@@ -52,8 +52,16 @@
 
 抽象工厂：各个工厂对应产品对象族（更加抽象），通过工厂组合实例化具体的产品
 
-### [单例模式](./05_Singleton/)
+## [单例模式](./05_Singleton/)
 
 ![singleton](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/Singleton_459-182.gif)
 
 **单例模式**：确保一个类只有一个实例，并提供一个全局的访问点
+
+## [命令模式](./06_Command/)
+
+![command](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/Command_854-316.gif)
+
+**命令模式**：将请求封装成对象，以便使用不同的请求、队列或者日志来参数化其他对象。命令模式也支持可撤销的操作
+
+*eg.* Android [`NuPlayer::Action`](https://android.googlesource.com/platform/frameworks/av/+/refs/heads/master/media/libmediaplayerservice/nuplayer/NuPlayer.cpp)
