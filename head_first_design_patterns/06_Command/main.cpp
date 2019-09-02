@@ -19,6 +19,10 @@ int main() {
         }
     };
 
+    // XXX: 此处应当是 uniqe_ptr 更合理，即独占所有权，插入 controller 后交出所有权（如果插入成功，否则保
+    // 留所有权）。但是，unique_ptr 要么按值传参，要么按引用传参。按值需要显式 std::move，则所有权必定移入
+    // 函数内，无法处理保留所有权的情况。引用传参则 std::unique_ptr<LightCommand> 与
+    // std::unique_ptr<ICommand> 类型不匹配
     auto ret1 = controller.plugin(1, light);
     reset_if_plugged(light, ret1);
     auto ret2 = controller.plugin(2, fan);

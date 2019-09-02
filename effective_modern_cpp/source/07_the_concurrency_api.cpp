@@ -56,7 +56,7 @@ void f() {
 }
 
 constexpr auto kTenMillion = 10000000;
-bool doWork(std::function<bool(int)> filter, int max = kTenMillion) {
+void doWork(std::function<bool(int)> filter, int max = kTenMillion) {
     std::vector<int> goodVals;
     std::thread t([&filter, max, &goodVals] {
         for (auto i = 0; i < max; ++i) {

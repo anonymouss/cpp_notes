@@ -16,8 +16,8 @@ void func(int id) {
 }
 
 int main() {
-    auto fut5 = std::async(func, 5);
-    auto fut2 = std::async(func, 2);
+    auto fut5 = std::async(std::launch::async, func, 5);
+    auto fut2 = std::async(std::launch::async, func, 2);
 }
 
 /**
