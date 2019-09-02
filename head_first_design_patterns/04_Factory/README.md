@@ -7,3 +7,8 @@
 ## 工厂方法模式
 
 ![factory method pizza](../image/04_factory_pizza_method.jpg)
+
+
+## 抽象工厂模式
+
+![abstract factory pizza](../image/04_factory_pizza_abstract.jpg)
