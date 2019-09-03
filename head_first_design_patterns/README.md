@@ -14,6 +14,8 @@
 
 - 依赖倒置：要依赖抽象，不用依赖具体类
 
+- 最少知识原则：只和最亲密的朋友交流
+
 ## [策略模式](./01_Strategy/)
 
 ![strategy](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/Stategy_801-243.gif)
@@ -65,3 +67,13 @@
 **命令模式**：将请求封装成对象，以便使用不同的请求、队列或者日志来参数化其他对象。命令模式也支持可撤销的操作
 
 *eg.* Android [`NuPlayer::Action`](https://android.googlesource.com/platform/frameworks/av/+/refs/heads/master/media/libmediaplayerservice/nuplayer/NuPlayer.cpp)
+
+## [装饰器与外观模式](./07_Adapter_and_Facade/)
+
+![adapter](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/Adapter_785-394.gif)
+
+**适配器**：将一个类的接口，转换成客户期望的另一个接口。适配器让原本接口不兼容的类可以合作无间
+
+![facade](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/Facade_701-268.gif)
+
+**外观模式**：提供了一个统一的接口，用来访问子系统中的一群接口。外观定义了一个高层接口，让子系统更容易使用。

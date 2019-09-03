@@ -1,0 +1,2 @@
+add_subdirectory(07_adapter_object)
+add_subdirectory(07_adapter_class)
