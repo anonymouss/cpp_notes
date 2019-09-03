@@ -16,6 +16,8 @@
 
 - 最少知识原则：只和最亲密的朋友交流
 
+- 好莱坞原则：不要找（调用）我，我会主动找（调用）你
+
 ## [策略模式](./01_Strategy/)
 
 ![strategy](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/Stategy_801-243.gif)
@@ -77,3 +79,9 @@
 ![facade](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/Facade_701-268.gif)
 
 **外观模式**：提供了一个统一的接口，用来访问子系统中的一群接口。外观定义了一个高层接口，让子系统更容易使用。
+
+## [模板方法](./08_Template_Method/)
+
+![template method](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/TemplateMethod_452-300.gif)
+
+**模板方法**：在一个方法中定义一个算法的骨架，而将一些步骤延迟到子类中。模板方法使得子类可以在不改变算法结构的情况下，重新定义算法中的某些步骤。
