@@ -18,6 +18,8 @@
 
 - 好莱坞原则：不要找（调用）我，我会主动找（调用）你
 
+- 单一责任：一个类应该只有一个引起变化的原因
+
 ## [策略模式](./01_Strategy/)
 
 ![strategy](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/Stategy_801-243.gif)
@@ -85,3 +87,13 @@
 ![template method](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/TemplateMethod_452-300.gif)
 
 **模板方法**：在一个方法中定义一个算法的骨架，而将一些步骤延迟到子类中。模板方法使得子类可以在不改变算法结构的情况下，重新定义算法中的某些步骤。
+
+## [迭代器与组合模式](./09_Iterator_and_Composite/)
+
+![iterator](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/Iterator_486-242.gif)
+
+**迭代器模式**：提供一个方法，顺序访问一个聚合对象中的各个元素而又不暴露其内部实现。
+
+![composite](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/Composite_713-363.gif)
+
+**组合模式**：允许你将对象组合成树形结构来表现“整体/部分”层次结构。组合能让客户以一致的方式处理个别对象以及对象组合。
