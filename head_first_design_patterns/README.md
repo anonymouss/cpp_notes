@@ -97,3 +97,11 @@
 ![composite](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/Composite_713-363.gif)
 
 **组合模式**：允许你将对象组合成树形结构来表现“整体/部分”层次结构。组合能让客户以一致的方式处理个别对象以及对象组合。
+
+## [状态模式](./10_State_Pattern/)
+
+![state](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/State_554-244.gif)
+
+**状态模式**：允许对象在内部状态改变时改变它的行为，看起来对象好像修改了它的类。
+
+*eg.* Android [`ACodec`](https://android.googlesource.com/platform/frameworks/av/+/refs/heads/master/media/libstagefright/ACodec.cpp)
