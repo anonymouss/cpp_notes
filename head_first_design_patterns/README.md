@@ -105,3 +105,11 @@
 **状态模式**：允许对象在内部状态改变时改变它的行为，看起来对象好像修改了它的类。
 
 *eg.* Android [`ACodec`](https://android.googlesource.com/platform/frameworks/av/+/refs/heads/master/media/libstagefright/ACodec.cpp)
+
+## [代理模式](./11_Proxy_Pattern/)
+
+![proxy](https://sites.cs.ucsb.edu/~mikec/cs48/misc/Design_Class_Diagrams_files/Proxy_660-272.gif)
+
+**代理模式**：为另一个对象提供一个替身或占位符以控制这个对象的访问
+
+*eg.* Android [`Binder`](https://github.com/anonymouss/android-ipc-demo/tree/master/binder-demo)
