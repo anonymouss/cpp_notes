@@ -9,3 +9,5 @@ Makefile
 # visual studio on windows
 .vs/
 win_build/
+
+/statistical_learning_method
