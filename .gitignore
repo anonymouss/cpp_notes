@@ -10,4 +10,8 @@ Makefile
 .vs/
 win_build/
 
-/statistical_learning_method
+/venv
+venv.bat
+venv.sh
+__pycache__
+*.pyc
