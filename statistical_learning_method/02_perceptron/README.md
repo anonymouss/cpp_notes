@@ -20,7 +20,7 @@ $f(x) = sign(w \cdot x + b)$
 
     4. 跳转到 2. 继续循环，直到没有误分点。
 
-2. 对偶形式 $f(x) = sign\left \{ \sum_{j=1}^N{\alpha_j y_j x_j\cdot x+b} \right \}$
+2. 对偶形式 $f(x) = sign\left\{ \sum_{j=1}^N{\alpha_j y_j x_j\cdot x+b} \right\}$
 
     1. 选取初值 $\alpha \leftarrow 0, b \leftarrow 0, \eta \leftarrow 1$
 

@@ -18,7 +18,7 @@ from random import random
 
 def L(x, y, p=2):
     # Lp distance:
-    # $L_p(x_{i}, x_{j}) = \left \( \sum_{l=1}^n|x_i^{(l)} - x_j^{(l)}|^p \right \)^{\frac{1}{p}}$
+    # $L_p(x_{i}, x_{j}) = \left( \sum_{l=1}^n|x_i^{(l)} - x_j^{(l)}|^p \right)^{\frac{1}{p}}$
     if len(x) == len(y) and len(x) > 1:
         sum = 0
         for i in range(len(x)):

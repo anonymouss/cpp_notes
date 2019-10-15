@@ -5,24 +5,24 @@ import scipy as sp
 from scipy.optimize import leastsq
 import matplotlib.pyplot as plt
 
-# y = \sin(2\pi x)
+# $y = \sin(2\pi x)$
 def real_func(x):
     return np.sin(2 * np.pi * x)
 
-# h(x) = \theta_0 \times x^2 + \theta_1 \times x^1 + \theta_2 \times x^0
+# $h(x) = \theta_0 \times x^2 + \theta_1 \times x^1 + \theta_2 \times x^0$
 def fit_func(p, x):
     f = np.poly1d(p)
     return f(x)
 
 # polynomial fitting, overfit
-# target: \min\sum_{i=1}^{n}(h(x_i) - y_i)^2
+# target: $\min\sum_{i=1}^{n}(h(x_i) - y_i)^2$
 
-# h(x) - y
+# $h(x) - y$
 def residuals_func(p, x, y):
     return fit_func(p, x) - y
 
 # regularization
-# target: min\sum_{i=1}^{n}(h(x_i) - y_i)^2 + \lambda\Vert w \Vert^2
+# target: $min\sum_{i=1}^{n}(h(x_i) - y_i)^2 + \lambda\Vert w \Vert^2$
 
 lamb = 0.0001
 def residuals_func_regularization(p, x, y):
