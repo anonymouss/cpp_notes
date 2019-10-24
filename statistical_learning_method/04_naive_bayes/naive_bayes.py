@@ -11,6 +11,7 @@ from sklearn.naive_bayes import GaussianNB
 from collections import Counter
 import math
 
+
 def prepare_data(test_size=0.2):
     iris = load_iris()
     df = pd.DataFrame(iris.data, columns=iris.feature_names)
@@ -21,15 +22,19 @@ def prepare_data(test_size=0.2):
     X, y = data[:, :-1], data[:, -1]
     return train_test_split(X, y, test_size=test_size)
 
+
 X_train, X_test, y_train, y_test = prepare_data()
 
 # 高斯判别器
 # 高斯概率密度函数：$P(x_i|y_k) = \frac{1}{\sqrt{2\pi\sigma^2_{y_k}}}\exp\left(-\frac{(x_i-\mu_{y_k})^2}{2\sigma^2_{y_k}}\right)$
 # 数学期望：$\mu$
 # 方差：$\sigma^2=\frac{\sum{(X-\mu)^2}}{N}$
+
+
 class NaiveBayes:
     def __init__(self):
         self.model = None
+        self.priorprob = {}
 
     def mean(self, X):
         return sum(X) / float(len(X))
@@ -49,7 +54,10 @@ class NaiveBayes:
     def train(self, X, y):
         labels = list(set(y))
         data = {label: [] for label in labels}
+        self.priorprob = {label: 0.0 for label in labels}
+        p1 = 1.0 / float(len(y))
         for x, label in zip(X, y):
+            self.priorprob[label] += p1
             data[label].append(x)
         self.model = {
             label: self.summarize(value) for label, value in data.items()
@@ -59,7 +67,7 @@ class NaiveBayes:
     def calculate_probabilities(self, x):
         probilities = {}
         for label, param in self.model.items():
-            probilities[label] = 1
+            probilities[label] = self.priorprob[label]
             for i in range(len(param)):
                 mu, std = param[i]
                 probilities[label] *= self.gaussian_probability(x[i], mu, std)
