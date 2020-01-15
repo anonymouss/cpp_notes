@@ -61,7 +61,7 @@ void Stack<T>::pop() { // implementation }
 
 限制：通常，只可以是整型常量值（包括枚举）、指向对象/函数/成员的指针、对象或函数的左值引用或`std::nullptr_t`
 
-浮点数和类对象是不可以的。
+**浮点数和类对象是不可以的。**
 
 传递模板参数给指针或引用是，对象不可以是字符串字面值、临时对象或者内部数据成员与其他子类型。虽然在C++17开始放宽了这些限制
 
@@ -95,11 +95,11 @@ auto foldSum(T... S) {
 ```
 
 |     Fold Expression     |                 Evaluation                  |
-|:-----------------------:|:-------------------------------------------:|
-| `(... op pack)`         | `(((pack1 op pack2) op pack3)... op packN)` |
-| `(pack op ...)`         | `(pack1 op (... (packN-1 op packN)))`       |
+| :---------------------: | :-----------------------------------------: |
+|     `(... op pack)`     | `(((pack1 op pack2) op pack3)... op packN)` |
+|     `(pack op ...)`     |    `(pack1 op (... (packN-1 op packN)))`    |
 | `(init op ... op pack)` | `(((init op pack1) op pack2)... op packN)`  |
-| `(pack op ... op init)` | `(pack1 op (... (packN op init)))`          |
+| `(pack op ... op init)` |     `(pack1 op (... (packN op init)))`      |
 
 ### Ticky Basics
 
@@ -147,3 +147,112 @@ constexpr T pi{3.1415926535897932385};
 std::cout << pi<double> << std::endl;
 std::cout << pi<float> << std::endl;
 ```
+
+### 移动语义和`enable_if<>`
+
+#### 完美转发
+
+#### 特殊成员函数模板
+
+- 注意数组（字符串字面常量）退化的情形（字符数组，`std::string`）
+
+- 注意构造函数模板可能会优先匹配，隐藏掉预定义的构造函数（如拷贝构造函数，因为它的`const`会不如模板匹配的非`const`）
+
+```cpp
+class Person {
+public:
+    template <typename STR>
+    Person(STR &&n) : name(std::forward<STR>(n)) {} // tmpl
+
+    Person(cosnt Person &p) : name(p.name) {} // copy-ctor
+    Person(Person &&p) : name(std::move(p.name)) {} // move-ctor
+
+private:
+    std::string name;
+};
+
+// usage
+Person p1;
+Person p2(p2);
+// tmpl generate --> Person(Person &p);
+// copy ctor     --> Person(const Person &p);
+// tmpl matches best
+// std::enable_if<> could fix this (or concept in future)
+```
+
+#### `std::enable_if<>`禁用模板
+
+- https://zh.cppreference.com/w/cpp/types/enable_if
+
+- 拷贝/移动/赋值这些特殊函数是不会被模板函数disable的，一个人tricky的方法是：定义拷贝构造的参数为`const volatile`并且把它`delete`
+
+```cpp
+class C {
+public:
+    // user-define the predefined copy constructor as deleted
+    // (with conversion to volatile to enable better matches)
+    C(C const volatile&) = delete;
+
+    // implement copy constructor template with better match:
+    template<typename T>
+    C (T const&) {
+        std::cout << "tmpl copy constructor\n";
+    }
+};
+
+// Usage
+C x;
+C y{x}; // uses the member template
+```
+
+#### Concept
+
+- `std::enable_if<>`用起来很笨拙，需要语言层面的支持（`concept`)，looking forward to C++20... :)
+
+### 传值还是引用？
+
+#### 传值
+
+- 值传递时参数会被拷贝，对于类来说拷贝构造成本可能很高，但是有的时候会被编译器优化（RVO、copy elision）
+
+- 退化情形，如模板推导时忽略掉`cv`限定符、字符串字面值退化为指针，数组退化为指针等
+
+#### 传引用
+
+- `std::ref()` & `std::cref()`
+
+- 字符串字面值和数组的特殊模板函数实现
+
+```cpp
+// only valid for arrays
+template <typename T, std::size_t L1, std::size_t L2>
+void foo(T (&arg1)[L1], T (&arg2)[L2]) { /* ... */ }
+
+// use type traits to detect whether an array(or a pointer) is passed
+template <typename T, typename = std::enable_if_t<std::is_array_v<T>>>
+void foo(T &&arg1, T &&arg2) { /* ... */ }
+```
+
+#### 建议
+
+- 一般情况下声明参数为值传递，对于大类型（copy expensive），调用者可以使用`std::ref()`或`std::cref()`来传递以避免拷贝
+
+- 如果参数需要作为允许修改的返回值使用，使用非常量引用（可以考虑使用type traits拒绝接受常量引用实参）
+
+- 如果参数需要转发，使用通用引用（可以考虑使用`std::decay<>`或`std::common_type<>`解决字符串字面值和裸数组推导为不同类型的问题/长度不一致）
+
+- 如果性能要求很高，使用常量引用
+
+- 如果是高手，自己决定。。。记住，不要过分的追求通用（generic）
+
+### 编译期编程
+
+- `template`
+
+- `constexpr` 函数（不一定编译器求值，取决于调用者的情况）
+
+- 通过偏特化选择执行的路径
+
+- SFINAE(out)
+
+- `if constexpr(...)` < *since C++17* >
