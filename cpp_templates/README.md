@@ -256,3 +256,18 @@ void foo(T &&arg1, T &&arg2) { /* ... */ }
 - SFINAE(out)
 
 - `if constexpr(...)` < *since C++17* >
+
+### 模板实践
+
+#### The Inclusion Model
+
+- 模板的实现和定义通常不要分离（分离在单独的`.h`和`.cpp`文件），这可能导致编译器不知道需要实例化模板而导致链接错误
+
+- 将模板定义与实现现在一个文件也有缺点，就是会导致编译时间变长，但是现在没有更好的办法。未来可能有`modules`
+
+#### 模板与内联
+
+- 模板是否会被内联替换完全取决于编译器，不过可以指定编译器属性如`noinline`或者`always_inline`
+
+#### 预编译头（vendor specific impl）
+
