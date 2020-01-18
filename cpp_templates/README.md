@@ -1,6 +1,6 @@
 # Notes of <C++ Templates: The Complete Guide, 2 Edition>
 
-## The Basics
+## 基础
 
 ### 函数模板
 
@@ -270,4 +270,298 @@ void foo(T &&arg1, T &&arg2) { /* ... */ }
 - 模板是否会被内联替换完全取决于编译器，不过可以指定编译器属性如`noinline`或者`always_inline`
 
 #### 预编译头（vendor specific impl）
+
+## 深入
+
+### 深入了解基础
+
+#### 参数化声明
+
+- C++目前支持4种基本的模板：类模板，函数模板，变量模板和别名模板。
+
+- union模板
+
+- 默认调用参数
+
+```cpp
+template <typename T>
+void fill(Array<T> &, const T & = T());
+
+struct Value {
+    explicit Value(int);
+};
+
+void init(Array<Value> &array) {
+    Value zero(0);
+    fill(array, zero);  // OK
+    fill(array);        // ERROR, Value no default ctor
+}
+```
+
+- 类模板的非模板成员
+
+##### 虚成员函数
+
+-  成员函数模板不可以被定义为虚函数，因为虚函数表是固定大小的，但是模板函数在整个程序翻译完成之前无法确定数量。
+
+```cpp
+template <typename T>
+struct Dynamic {
+    virtual ~Dynamic();             // OK
+
+    template <typename T2>
+    virtual void copy(const T2 &);  // ERROR!
+};
+```
+
+##### 模板的链接
+
+- 一般模板具有外部链接，`static`修饰或者匿名命名空间的模板具有内部链接，匿名类的模板没有链接
+
+```cpp
+template <typename T>   // refers to the same entity as a declaration of the
+void external();        // same name (and scope) in other file
+
+
+template <typename T>   // unrelated to a template with the same name in
+static void internal(); // another file
+
+template <typename T>   // redeclaration of the previous declaration
+static void internal();
+
+
+namespace {
+    template <typename>     // also unrelated to a template with same name
+    void otherInternal();   // in another file, even one that similarly appears
+                            // in an unnamed namespace
+}
+
+namespace {
+    template <typename>     // redeclaration of the previous template declaration
+    void otherInternal();
+}
+
+
+struct {
+    template <typename T>   // no linkage: canot be redeclared
+    void f(T) {}
+} x;
+```
+
+##### 基本模板
+
+#### 模板形参
+
+##### 类型形参
+
+##### 非类型形参
+
+必须是在编译或者链接时可以确定的常量值
+
+- 整型或枚举类型
+
+- 指针类型
+
+- 指向成员的指针
+
+- 左值引用（包括指向对象和指向函数的引用）
+
+- `std::nullptr_t`
+
+- 任何含有 `auto` 或者 `decltype(auto)` 的类型
+
+其他类型都不可以（浮点类型将来可能会支持）
+
+##### 模板的模板形参
+
+模板的模板参数是类或者别名模板的占位符。其声明和类模板很类似，但是不能使用`struct`和`union`关键字
+
+```cpp
+template <
+    template <typename X> class C   // OK
+> void f(C<int> *p);
+
+template <
+    template <typename X> struct C  // ERROR: struct is not valid here
+> void f(C<int> *p);
+
+template <
+    template <typename X> union C   // ERROR: union is not valid here
+> void f(C<int> *p);
+
+template <
+    template <typename X> typename C    // OK, sicne C++17
+> void f(C<int> *p);
+```
+
+- 模板的模板参数的模板参数只能被它自己访问到，外层模板无法访问
+
+- 因此模板的模板参数的模板参数名，如果后面用不掉，可以省略不写
+
+##### 模板形参包（变长参数模板）
+
+##### 默认模板参数
+
+- 类/变量/别名模板只有当后续模板参数有了默认参数时才可，函数模板无此限制
+
+- 默认模板参数**不可**重复（重复定义）
+
+- **不可**以在特化模板中定义参数（必须在基本模板）
+
+```cpp
+template <typename T> class C;
+template <typename T = int> class C<T*>;    // ERROR
+```
+
+- 参数包（变长）**不可**以有默认参数
+
+- 类模板成员在类外定义**不可**有默认参数
+
+- 友元类模板声明**不可**有默认参数，除非它是定义，并且在别处没有声明
+
+```cpp
+struct S {
+    template <typename = void> friend void f();     //ERROR! not permitted
+    template <typename = void> friend void g() {}   // OK
+    template <typename> void g();                   // ERROR! alreay defined with a default arg.
+                                                    // forbide declare anywhere else
+};
+```
+
+#### 模板实参
+
+- 模板的模板实参必须是一个类模板或者别名模板，它本身也有模板参数，（C++17前）该参数必须严格匹配传入的模板的模板参数，且默认参数不被考虑
+
+```cpp
+// prior C++ 17
+#include <list>
+/**
+ * template <typename T, typename Allocator = allocator<T>> class list;
+ */
+
+template <typename T1, typename T2, template<typename> class Cont>
+struct Rel {
+    Cont<T1> c1;
+    Cont<T2> c2;
+};
+
+Rel<int, double, std::list> rel; // error! std::list requires two template args
+```
+
+- 可变参数可以突破这个限制 [`test_tmpl_args.h`](./book_samples/01_basics/include/test_tmpl_args.h)
+
+- **包扩展**
+
+- 友元
+
+### 模板中的名称
+
+#### 名称分类
+
+- 受限名
+
+- 依赖名
+
+#### 名称查找
+
+- `ADL`（参数依赖查找）：对非受限名函数查找时，除了在当前作用域往上查找外，还会在**参数作用域**查找（但是会**忽略**参数作用域内的`using指示符`，即忽略`using`引入的作用域）。
+
+- inject name
+
+- 待决名（依赖名）- 加 `typename`
+
+- 依赖类型模板 - 加 `template`
+
+#### 派生和类模板
+
+- 非依赖型基类（无需知道模板实参就可以完全确定基类）
+
+- **注意**：在派生类中查找非受限名时，会先查找非依赖基类，然后才查找模板参数列表
+
+```cpp
+template <typename X>
+struct Base {
+    int basefield;
+    typedef int T;  // NOTE
+};
+
+template <typename T>
+struct Derived : public Base<double> {  // no dependent base class
+    void f() { basefield = 7; }
+    T strange;    // NOTE: here T is Base<doule>::T --> int
+};
+
+void g(Derived<int *> &d, int *p) {
+    d.strange = p;  // ERROR! d.strange is int type, p is int *
+}
+```
+
+- 依赖型基类（基类类型与模板实参有关）
+
+- 标准规定看到非依赖名要立即查找，因而此时无法查找依赖基类，因为它要到模板实例化阶段才能确定
+
+```cpp
+template <typename T>
+struct DD : public Base<T> {    // dependent base class
+    void f() { basefield = 0; } // ERROR! undefined! because can't lookup Base<T>
+};
+
+template <>
+struct Base<bool> {  // explicitly specialization
+    enum { basefield = 42 };
+};
+
+void g(DD<bool> &d) { d.f(); } // oops!
+
+// fix 1
+template <typename T>
+struct DD1 : public Base<T> {    // dependent base class
+    void f() { this->basefield = 0; } // ERROR!
+};
+
+// fix 2
+template <typename T>
+struct DD2 : public Base<T> {
+    void f() { Base<T>::basefield = 0; } // NOTE: virtual func is prohibited in this case
+};
+
+// fix 3
+template <typename T>
+struct DD3 : public Base<T> {
+    using Base<T>::basefield;
+    void f() { basefield = 0; }
+};
+```
+
+### 实例化
+
+#### On-Demand 实例化（隐式实例化）
+
+#### 延迟实例化
+
+- 模板实例化时只实例化必须的部分
+
+```cpp
+template <typename T> class Q {
+    using Type = typename T::Type;
+};
+
+Q<int> *p = nullptr;    // OK! 编译完全没有问题，尽管 int::Type 是错的
+```
+
+#### C++ 实例化模型
+
+##### 两步查找
+
+- step 1. 模板解析；step 2. 模板实例化
+
+#### 编译器中的一些实现方案
+
+##### 贪婪实例化
+
+##### 查询实例化
+
+##### 迭代实例化
+
+#### 显式实例化
 
