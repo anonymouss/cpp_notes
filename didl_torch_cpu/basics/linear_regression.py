@@ -19,7 +19,7 @@ from helper import *
     cost function: MSE
     loss = \frac{1}{N}\sum_{i=1}^{N}{(\bar{y}_i - y_i)^2}
 
-    w_1^*w_2^*b^* = \arg{\min_{w_1, w_2,b}{\operatorname(l)(w_1, w_2, b))}}
+    w_1^*w_2^*b^* = \arg{\min_{w_1, w_2,b}{\operatorname{l}(w_1, w_2, b))}}
 
     optim: mini-batch SGD
 '''
@@ -37,15 +37,6 @@ labels += torch.tensor(np.random.normal(0, 0.01, size=labels.size())).float()
 set_figsize()
 # plt.scatter(features[:, 1].numpy(), labels.numpy())
 # plt.show()
-
-def simple_data_iter(batch_size, features, labels):
-    num_examples = len(features)
-    indices = list(range(num_examples))
-    random.shuffle(indices)
-    for i in range(0, num_examples, batch_size):
-        j = torch.LongTensor(indices[i: min(i+batch_size, num_examples)])
-        yield features.index_select(0, j), labels.index_select(0, j)
-
 
 ####################################################################################################
 
@@ -78,7 +69,7 @@ loss = squared_loss
 
 print('Training with raw implemented linear regression model')
 for epoch in range(num_epochs):
-    for X, y in simple_data_iter(batch_size, features, labels):
+    for X, y in data_iter(batch_size, features, labels):
         l = loss(net(X, w_r, b_r), y).sum() # / len(X)
         l.backward()
         sgd([w_r, b_r], lr, batch_size)

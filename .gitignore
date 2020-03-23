@@ -17,3 +17,5 @@ __pycache__
 *.pyc
 
 /statistical_learning_method/test_tmp
+
+/data_tmp
