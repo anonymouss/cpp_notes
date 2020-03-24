@@ -18,4 +18,4 @@ __pycache__
 
 /statistical_learning_method/test_tmp
 
-/data_tmp
+/data_tmp/*

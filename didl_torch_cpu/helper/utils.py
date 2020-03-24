@@ -56,7 +56,15 @@ def load_data_fashion_mnist(batch_size):
 def evaluate_accuracy(data_iter, net):
     acc_sum, n = 0.0, 0
     for X, y in data_iter:
-        acc_sum += (net(X).argmax(dim=1) == y).float().sum().item()
+        if isinstance(net, torch.nn.Module):
+            net.eval()
+            acc_sum += (net(X).argmax(dim=1) == y).float().sum().item()
+            net.train()
+        else:
+            if ('is_training' in net.__code__.co_varnames):
+                acc_sum += (net(X, is_training=False).argmax(dim=1) == y).float().sum().item()
+            else:
+                acc_sum += (net(X).argmax(dim=1) == y).float().sum().item()
         n += y.shape[0]
     return acc_sum / n
 
@@ -98,3 +106,23 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size, params=N
             test_acc, test_ts - train_ts
         ))
         prev_ts = test_ts
+
+def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None, legend=None,
+            figsize=(3.5, 2.5)):
+    set_figsize(figsize)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.semilogy(x_vals, y_vals)
+    if x2_vals and y2_vals:
+        plt.semilogy(x2_vals, y2_vals, linestyle=':')
+        plt.legend(legend)
+    plt.show()
+
+def drop_out(X, drop_prob):
+    X = X.float()
+    assert  0 <= drop_prob <= 1.0
+    keep_prob = 1.0 - drop_prob
+    if keep_prob == 0:
+        return torch.zeros_like(X)
+    mask = (torch.rand(X.shape) < keep_prob).float()
+    return mask * X / keep_prob
