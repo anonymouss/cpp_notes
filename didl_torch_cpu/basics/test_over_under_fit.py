@@ -209,3 +209,12 @@ true_labels = get_fashion_mnist_labels(y.numpy())
 pred_labels = get_fashion_mnist_labels(net(X).argmax(dim=1).numpy())
 titles = [true + '\n' + pred for true, pred in zip(true_labels, pred_labels)]
 show_fashion_mnist(X[0:9], titles[0:9])
+
+'''
+    正向/反向传播与计算图
+    权重衰减与爆炸
+    随机初始化模型参数
+        - Xavier:
+            某全连接层输入数a，输出数b，Xavier使每个元素都随机采样于均匀分布
+            \operatorname{U}\left(-\sqrt{\frac{6}{a+b}}, \sqrt{\frac{6}{a+b}}\right )
+'''
