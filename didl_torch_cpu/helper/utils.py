@@ -3,7 +3,7 @@ import torchvision
 import torchvision.transforms as transforms
 
 from IPython import display
-from matplotlib import pyplot as plt
+
 import random
 import time
 
