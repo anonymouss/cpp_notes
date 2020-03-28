@@ -41,13 +41,18 @@ def show_fashion_mnist(images, labels):
         f.axes.get_yaxis().set_visible(False)
     plt.show()
 
-def load_data_fashion_mnist(batch_size):
+def load_data_fashion_mnist(batch_size, resize=None):
+    trans = []
+    if resize:
+        trans.append(torchvision.transforms.Resize(size=resize))
+    trans.append(torchvision.transforms.ToTensor())
+    transform = torchvision.transforms.Compose(trans)
     # 60000 samples
     mnist_train = torchvision.datasets.FashionMNIST('../data_tmp/MNIST', train=True, download=True,
-                                                    transform=transforms.ToTensor())
+                                                    transform=transform)
     # 10000 samples
     mnist_test = torchvision.datasets.FashionMNIST('../data_tmp/MNIST', train=False, download=True,
-                                                    transform=transforms.ToTensor())
+                                                    transform=transform)
 
     train_iter = torch.utils.data.DataLoader(mnist_train, batch_size=batch_size, shuffle=True,
                                             num_workers=num_workers)
@@ -155,3 +160,9 @@ def drop_out(X, drop_prob):
         return torch.zeros_like(X)
     mask = (torch.rand(X.shape) < keep_prob).float()
     return mask * X / keep_prob
+
+class FlattenLayer(torch.nn.Module):
+    def __init__(self):
+        super(FlattenLayer, self).__init__()
+    def forward(self, x):
+        return x.view(x.shape[0], -1)
