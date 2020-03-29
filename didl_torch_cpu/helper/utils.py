@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
 
@@ -166,3 +167,10 @@ class FlattenLayer(torch.nn.Module):
         super(FlattenLayer, self).__init__()
     def forward(self, x):
         return x.view(x.shape[0], -1)
+
+class GlobalAvgPool2d(torch.nn.Module):
+    def __init__(self):
+        super(GlobalAvgPool2d, self).__init__()
+
+    def forward(self, x):
+        return F.avg_pool2d(x, kernel_size=x.size()[2:])
