@@ -187,7 +187,7 @@ static void Test_BinarySearchTree() {
     tree.remove(0);
     assert(tree.size() == 0);
     // tree.remove(1); // trigger assertion
-    std::cout << "\n[OK]: Done." << std::endl;
+    std::cout << "\n[OK]: Done.\n" << std::endl;
 }
 
 }  // namespace test
