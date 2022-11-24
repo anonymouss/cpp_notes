@@ -19,6 +19,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 endif()
 
 add_subdirectory(ch02_managing_threads)
-#add_subdirectory(ch03_sharing_data_between_threads)
+add_subdirectory(ch03_sharing_data_between_threads)
 #add_subdirectory(ch04_synchronizing_concurrent_operations)
 #add_subdirectory(ch05_memory_order_and_atomic_types)
