@@ -25,3 +25,5 @@ std::thread t(f, 3, "hello");
 - 初始化期间保护数据：`std::call_once/std::once_flag` 保证只会调用一次
 - 读写锁：`std::shared_mutex/std::shared_lock`。`lock_shared()`可以多个线程共享锁定，但是如果有线程进行了排他锁定`lock()`，该调用会阻塞。
 - 递归锁/可重入锁：`std::recursive_mutex`，同一个线程可以在不释放的情况下多次上锁。（上锁几次也要释放几次）
+
+`std::future/std::shared_future` 一次性等待。`std::future/std::async/std::packaged_task/std::promise`
